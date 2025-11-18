@@ -2,10 +2,10 @@ import { Outlet } from "react-router";
 import NavBar from "./NavBar";
 import "./App.css";
 
-const Layout = () => {
+const Layout = ({ user, setUser }) => {
   return (
     <div>
-      <NavBar />
+      <NavBar user={user} setUser={setUser} />
       <div>
         <Outlet />
       </div>

@@ -1,7 +1,7 @@
 import "./games.css";
 import { Link } from "react-router";
 
-const Games = ({ games }) => {
+const Games = ({ games, deleteGame, user }) => {
   return (
     <div className="gamesContainer">
       {games.map((game) => {
@@ -14,6 +14,24 @@ const Games = ({ games }) => {
             <p>Price: {game.price}</p>
             <p>Rating: {game.rating}/5</p>
             <img src={game.image} />
+            <br />
+            {/* {user.id ? (
+              <button
+                onClick={() => {
+                  deleteGame(game.id);
+                }}
+              >
+                Delete Game
+              </button>
+            ) : null} */}
+            <button
+              onClick={() => {
+                deleteGame(game.id);
+              }}
+              disabled={user.id ? false : true}
+            >
+              Delete Game
+            </button>
           </div>
         );
       })}

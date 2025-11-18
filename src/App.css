@@ -5,3 +5,10 @@ nav {
 nav > a {
   margin: 1rem;
 }
+nav > span > a {
+  margin: 1rem;
+}
+
+#loginForm > label {
+  margin: 1rem;
+}
