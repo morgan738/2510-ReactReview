@@ -5,6 +5,7 @@ import Login from "./Auth/Login";
 import Layout from "./Layout";
 import Register from "./Auth/Register";
 import AboutMe from "./Auth/AboutMe";
+import SearchGame from "./Games/SearchGame";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Routes, Route } from "react-router";
@@ -12,6 +13,7 @@ import { Routes, Route } from "react-router";
 function App() {
   const [games, setGames] = useState([]);
   const [user, setUser] = useState({});
+  const [favorites, setFavorites] = useState([]);
 
   const authenticate = async () => {
     try {
@@ -43,6 +45,65 @@ function App() {
     }
   };
 
+  const addToFav = async (id) => {
+    try {
+      const { data } = await axios.post(
+        "https://auth-api-8ysj.onrender.com/api/favorites",
+        { games_id: id },
+        {
+          headers: {
+            Authorization: `${window.localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setFavorites([...favorites, data]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const removeFromFav = async (id) => {
+    try {
+      await axios.delete(
+        `https://auth-api-8ysj.onrender.com/api/favorites/${id}`,
+        {
+          headers: {
+            Authorization: `${window.localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const newFavs = favorites.filter((fav) => {
+        return fav.fav_id !== id;
+      });
+      setFavorites(newFavs);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const checkFav = (gameId) => {
+    return favorites.find((fav) => {
+      return fav.id === gameId;
+    });
+  };
+
+  useEffect(() => {
+    const fetchFavs = async () => {
+      const { data } = await axios.get(
+        "https://auth-api-8ysj.onrender.com/api/favorites",
+        {
+          headers: {
+            Authorization: `${window.localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setFavorites(data);
+    };
+    if (window.localStorage.getItem("token")) {
+      fetchFavs();
+    }
+  }, [user.id]);
+
   useEffect(() => {
     if (window.localStorage.getItem("token")) {
       authenticate();
@@ -67,13 +128,25 @@ function App() {
           <Route
             index
             element={
-              <Games games={games} deleteGame={deleteGame} user={user} />
+              <Games
+                games={games}
+                deleteGame={deleteGame}
+                user={user}
+                addToFav={addToFav}
+                checkFav={checkFav}
+              />
             }
           />
           <Route
             path="/allGames"
             element={
-              <Games games={games} deleteGame={deleteGame} user={user} />
+              <Games
+                games={games}
+                deleteGame={deleteGame}
+                user={user}
+                addToFav={addToFav}
+                checkFav={checkFav}
+              />
             }
           />
           <Route
@@ -91,7 +164,20 @@ function App() {
             element={<Login authenticate={authenticate} />}
           />
           <Route path="/register" element={<Register />} />
-          <Route path="/aboutMe" element={<AboutMe user={user} />} />
+          <Route
+            path="/aboutMe"
+            element={
+              <AboutMe
+                user={user}
+                favorites={favorites}
+                removeFromFav={removeFromFav}
+              />
+            }
+          />
+          <Route
+            path="/allGames/search/?"
+            element={<SearchGame games={games} />}
+          />
         </Route>
       </Routes>
     </div>
